@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Soruce\Main.cpp" />
+    <ClCompile Include="..\Soruce\Local\PCH.cpp">
+      <Filter>Local</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Local">
+      <UniqueIdentifier>{5813944b-b27f-4f3e-9b45-f3dada23cb05}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Soruce\Local\PCH.h">
+      <Filter>Local</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
