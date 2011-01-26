@@ -63,13 +63,16 @@ namespace Events
 /**
 	@brief	イベントディスパッチャのイベント型最大数
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_MAX_ARITY		10
+#define RIPPLE_EVENTDISPATCHER_MAX_EVENTS	10
 
 
-	/// NullType
-	struct NullType { };
+	namespace detail
+	{
+		/// NullType
+		struct NullType { };
+	}
 
-#define RIPPLE_PP_EVENT_NULLTYPE( z, n, unused )	NullType
+#define RIPPLE_PP_EVENT_NULLTYPE( z, n, unused )	detail::NullType
 
 /**
 	@brief	EventDispatcher テンプレート特殊化プリプロセッサ
@@ -79,14 +82,14 @@ namespace Events
 		< TEvt0, TEvt1, NullType, NullType, ... >
 	@endcode
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_SPECIALIZATION( count )																					\
+#define RIPPLE_PP_EVENTDISPATCHER_SPECIALIZATION( count )																					\
 	BOOST_PP_ENUM_PARAMS( count, TEvt )																										\
-	BOOST_PP_ENUM_TRAILING( BOOST_PP_SUB( BOOST_PP_INC( RIPPLE_PP_EVENT_DISPATCHER_MAX_ARITY ), count ), RIPPLE_PP_EVENT_NULLTYPE, ~ )
+	BOOST_PP_ENUM_TRAILING( BOOST_PP_SUB( BOOST_PP_INC( RIPPLE_EVENTDISPATCHER_MAX_EVENTS ), count ), RIPPLE_PP_EVENT_NULLTYPE, ~ )
 
 /**
 	@brief	EventDispatcher typedef プリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_TYPEDEFS( z, n, unused )														\
+#define RIPPLE_PP_EVENTDISPATCHER_TYPEDEFS( z, n, unused )														\
 	typedef typename EventTraits< BOOST_PP_CAT( TEvt, n ) >					BOOST_PP_CAT( EventTraits, n );		\
 	typedef typename EventTraits< BOOST_PP_CAT( TEvt, n ) >::TDispatcher	BOOST_PP_CAT( TDispatcher, n );		\
 	typedef typename EventTraits< BOOST_PP_CAT( TEvt, n ) >::SPDispatcher	BOOST_PP_CAT( SPDispatcher, n );	\
@@ -96,7 +99,7 @@ namespace Events
 /**
 	@brief	EventDispatcher メソッドプリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_METHODS( z, n, unused )								\
+#define RIPPLE_PP_EVENTDISPATCHER_METHODS( z, n, unused )								\
 	inline void AddEventListener( BOOST_PP_CAT( TEventNameParam, n ) Name,				\
 								  const BOOST_PP_CAT( TListener, n ) & Listener )		\
 	{																					\
@@ -119,52 +122,52 @@ namespace Events
 /**
 	@brief	EventDispatcher	メンバプリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_MEMBER( z, n, unused )		\
+#define RIPPLE_PP_EVENTDISPATCHER_MEMBER( z, n, unused )		\
 	BOOST_PP_CAT( SPDispatcher, n ) BOOST_PP_CAT( m_pImpl, n );
 
 /**
 	@brief	EventDispatcher コンストラクタパラメータプリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DOSPATCHER_CONSTRUCT_PARAM( z, n, unused )	\
+#define RIPPLE_PP_EVENTDISPATCHER_CONSTRUCT_PARAM( z, n, unused )	\
 	BOOST_PP_CAT( m_pImpl, n )	( std::make_shared< BOOST_PP_CAT( TDispatcher, n ) >() )
 
 /**
 	@brief	EvenrDispatcher クラスプリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_CLASS( count )										\
+#define RIPPLE_PP_EVENTDISPATCHER_CLASS( count )										\
 	template < BOOST_PP_ENUM_PARAMS( count, class TEvt ) >								\
-	class EventDispatcher< RIPPLE_PP_EVENT_DISPATCHER_SPECIALIZATION( count ) >			\
-		: boost::noncopyable															\
+	class EventDispatcher< RIPPLE_PP_EVENTDISPATCHER_SPECIALIZATION( count ) >			\
+		: private boost::noncopyable													\
 	{																					\
 	public:																				\
-		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENT_DISPATCHER_TYPEDEFS, ~ )				\
-		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENT_DISPATCHER_METHODS, ~ )					\
+		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENTDISPATCHER_TYPEDEFS, ~ )					\
+		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENTDISPATCHER_METHODS, ~ )					\
 	private:																			\
-		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENT_DISPATCHER_MEMBER, ~ )					\
+		BOOST_PP_REPEAT( count, RIPPLE_PP_EVENTDISPATCHER_MEMBER, ~ )					\
 	public:																				\
 		EventDispatcher()																\
-			: BOOST_PP_ENUM( count, RIPPLE_PP_EVENT_DOSPATCHER_CONSTRUCT_PARAM, ~ ) { }	\
+			: BOOST_PP_ENUM( count, RIPPLE_PP_EVENTDISPATCHER_CONSTRUCT_PARAM, ~ ) { }	\
 	};
 
 /**
 	@brief	EventDispatcher 定義プリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_DECL( z, n, unused ) \
-	RIPPLE_PP_EVENT_DISPATCHER_CLASS( BOOST_PP_INC( n ) )
+#define RIPPLE_PP_EVENTDISPATCHER_DECL( z, n, unused ) \
+	RIPPLE_PP_EVENTDISPATCHER_CLASS( BOOST_PP_INC( n ) )
 
 /**
 	@brief	EventDispatcher	イベント型定義プリプロセッサ
  */
-#define RIPPLE_PP_EVENT_DISPATCHER_EVENTS( z, n, unused ) \
-	class BOOST_PP_CAT( TEvt, n ) = NullType
+#define RIPPLE_PP_EVENTDISPATCHER_EVENTS( z, n, unused ) \
+	class BOOST_PP_CAT( TEvt, n ) = detail::NullType
 
 
 // Forward Declaration
-template < class TEvt0, BOOST_PP_ENUM_SHIFTED( RIPPLE_PP_EVENT_DISPATCHER_MAX_ARITY, RIPPLE_PP_EVENT_DISPATCHER_EVENTS, ~ ), class Ignore = NullType >
+template < class TEvt0, BOOST_PP_ENUM_SHIFTED( RIPPLE_EVENTDISPATCHER_MAX_EVENTS, RIPPLE_PP_EVENTDISPATCHER_EVENTS, ~ ), class Ignore = detail::NullType >
 class EventDispatcher;
 
 // Declaration
-BOOST_PP_REPEAT( RIPPLE_PP_EVENT_DISPATCHER_MAX_ARITY, RIPPLE_PP_EVENT_DISPATCHER_DECL, ~ )
+BOOST_PP_REPEAT( RIPPLE_EVENTDISPATCHER_MAX_EVENTS, RIPPLE_PP_EVENTDISPATCHER_DECL, ~ )
 
 }
 }
