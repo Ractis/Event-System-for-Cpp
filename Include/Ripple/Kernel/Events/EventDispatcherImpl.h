@@ -78,8 +78,6 @@ namespace Events
 		TListenerCont	m_ListenerCont;
 
 	public:
-		virtual ~EventDispatcherImpl() { }
-
 		/**
 			@brief	イベントリスナーを追加
 			@param[in]	Name		イベント名
